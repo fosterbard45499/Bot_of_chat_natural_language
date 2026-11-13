@@ -66,7 +66,7 @@ playing = False
 mode_control = False
 print('[INFO] Pronto para começar!')
 playsound('n1.mp3')
-meu_nome = 'Maria'
+meu_nome = 'Mocheng'
 
 while (1):
     result = listen_microphone()
