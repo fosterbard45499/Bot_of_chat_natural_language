@@ -1,0 +1,6 @@
+pyttsx3
+SpeechRecognition
+PyAudio
+yt-dlp
+imageio-ffmpeg
+pygame-ce
