@@ -1,5 +1,6 @@
 """Junta o COMANDOS de cada módulo e despacha a frase para a função certa."""
 from modules import pesquisa, musica
+from modules.acoes_assistente import processar_comando
 from modules.texto import normalizar
 
 MODULOS = [pesquisa, musica]
@@ -12,15 +13,19 @@ COMANDOS = sorted(
 
 def executar(frase):
     """Recebe o que veio depois do nome da assistente.
-    Devolve o texto a ser falado, ou None se nenhum comando bateu."""
-    frase = normalizar(frase)
+    Devolve o texto a ser falado pelo comando correspondente."""
+    frase_original = frase
+    frase_normalizada = normalizar(frase)
     for gatilho, fn in COMANDOS:
-        if frase == gatilho or frase.startswith(gatilho + ' '):
-            return fn(frase[len(gatilho):].strip())
+        if frase_normalizada == gatilho or frase_normalizada.startswith(gatilho + ' '):
+            return fn(frase_normalizada[len(gatilho):].strip())
     # gatilho no meio da frase (ex.: "me ajude a pesquisar gatos")
-    cercada = ' ' + frase + ' '
+    cercada = ' ' + frase_normalizada + ' '
     for gatilho, fn in COMANDOS:
         marca = ' ' + gatilho + ' '
         if marca in cercada:
             return fn(cercada.split(marca, 1)[1].strip())
-    return None
+
+    respostas = []
+    processar_comando(frase_original, respostas.append)
+    return respostas[0] if respostas else None

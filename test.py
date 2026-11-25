@@ -8,6 +8,7 @@ import pandas as pd
 
 from modules.acoes_assistente import extrair_comando_ativacao, processar_comando
 from modules.carrega_agenda import carrega_agenda
+from modules.comandos import executar
 from modules.data_portugues import data_em_portugues
 from modules.lembretes import adicionar_lembrete, apagar_lembretes, listar_lembretes
 
@@ -93,6 +94,13 @@ class AgendaTests(unittest.TestCase):
 
 
 class ComandosTests(unittest.TestCase):
+    @patch("modules.acoes_assistente.data_em_portugues", return_value="13 de novembro de 2026")
+    def test_despachante_encaminha_comando_principal(self, _mock_data):
+        self.assertEqual(executar("que dia é hoje"), "13 de novembro de 2026")
+
+    def test_despachante_responde_quando_comando_nao_e_reconhecido(self):
+        self.assertEqual(executar("comando inexistente"), "Não reconheci esse comando.")
+
     def test_ativacao_ignora_diferenca_de_maiusculas(self):
         self.assertEqual(extrair_comando_ativacao("MOCHENG, qual é a data?", "Mocheng"), "qual é a data?")
 

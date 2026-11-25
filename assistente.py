@@ -3,6 +3,7 @@ import speech_recognition as sr
 #from playsound import playsound  # sons desativados por enquanto
 import random
 import datetime
+import re
 hour = datetime.datetime.now().strftime('%H:%M')
 #print(hour)
 date = datetime.date.today().strftime('%d/%B/%Y')
@@ -65,32 +66,33 @@ playing = False
 mode_control = False
 print('[INFO] Pronto para começar!')
 #playsound('n1.mp3')
-meu_nome = 'maria'  # em minúsculas: a comparação abaixo ignora maiúsculas e acentos
+meu_nome = 'luana'  # em minúsculas: a comparação abaixo ignora maiúsculas e acentos
 
 while (1):
-    result = listen_microphone()
-    result = normalizar(result)  # minúsculas, sem acento/pontuação
+    frase = listen_microphone()
+    ativacao = re.search(rf'\b{re.escape(meu_nome)}\b', frase, re.IGNORECASE)
 
-    if meu_nome in result.split():  # antes: meu_nome in result (diferenciava maiúsculas)
-        result = ' '.join(result.split(meu_nome)[1:]).strip()  # antes: split(...)[1] quebrava se só dissesse o nome
+    if ativacao:
+        result = frase[ativacao.end():].strip(' \t\r\n,.;:!?')
+        result_normalizado = normalizar(result)
         print('Acionou a assistente!')
         print('Após o processamento: ', result)
 
         # funcoes do assistente
-        if result in [normalizar(c) for c in comandos[0]]:
+        if result_normalizado in [normalizar(c) for c in comandos[0]]:
             #playsound('n2.mp3')
             speak('Até agora minhas funções são: ' + respostas[0])
 
-        elif result == 'encerrar':  # antes era 'if' solto
+        elif result_normalizado in ('encerrar', 'sair', 'fechar assistente'):
             #playsound('n2.mp3')
             speak(''.join(random.sample(respostas[4], k = 1)))
             break
 
-        elif result == '':  # só disseram o nome
+        elif result_normalizado == '':  # só disseram o nome
             speak(''.join(random.sample(respostas[2], k = 1)))
 
         else:
-            # novo: demais comandos (pesquisa, música...) vêm de modules/comandos.py
+            # O despachante encaminha pesquisa/música e também os comandos principais.
             resposta = comandos_modulos.executar(result)
             #playsound('n3.mp3')
-            speak(resposta if resposta else 'Ouvindo')  # antes: o 'else' ficava no 'if meu_nome'
+            speak(resposta if resposta else 'Não reconheci esse comando.')
